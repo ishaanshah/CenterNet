@@ -4,15 +4,15 @@ from __future__ import print_function
 
 import numpy as np
 import cv2
+import matplotlib.pyplot as plt
+plt.switch_backend("Qt5Agg")
 from .ddd_utils import compute_box_3d, project_to_image, draw_box_3d
 
 class Debugger(object):
   def __init__(self, ipynb=False, theme='black', 
                num_classes=-1, dataset=None, down_ratio=4):
     self.ipynb = ipynb
-    if not self.ipynb:
-      import matplotlib.pyplot as plt
-      self.plt = plt
+    self.plt = plt
     self.imgs = {}
     self.theme = theme
     colors = [(color_list[_]).astype(np.uint8) \
@@ -79,9 +79,9 @@ class Debugger(object):
       bg * (1 - trans)).astype(np.uint8)
   
   def show_img(self, pause = False, imgId = 'default'):
-    cv2.imshow('{}'.format(imgId), self.imgs[imgId])
-    if pause:
-      cv2.waitKey()
+    self.plt.imshow('{}'.format(imgId), self.imgs[imgId])
+    # if pause:
+    #  cv2.waitKey()
   
   def add_blend_img(self, back, fore, img_id='blend', trans=0.7):
     if self.theme == 'white':
@@ -213,25 +213,25 @@ class Debugger(object):
                    3, (int(c[0]), int(c[1]), int(c[2])), -1)
 
   def show_all_imgs(self, pause=False, time=0):
-    if not self.ipynb:
-      for i, v in self.imgs.items():
-        cv2.imshow('{}'.format(i), v)
-      if cv2.waitKey(0 if pause else 1) == 27:
-        import sys
-        sys.exit(0)
-    else:
-      self.ax = None
-      nImgs = len(self.imgs)
-      fig=self.plt.figure(figsize=(nImgs * 10,10))
-      nCols = nImgs
-      nRows = nImgs // nCols
-      for i, (k, v) in enumerate(self.imgs.items()):
-        fig.add_subplot(1, nImgs, i + 1)
-        if len(v.shape) == 3:
-          self.plt.imshow(cv2.cvtColor(v, cv2.COLOR_BGR2RGB))
-        else:
-          self.plt.imshow(v)
-      self.plt.show()
+    # if not self.ipynb:
+    #   for i, v in self.imgs.items():
+    #     self.plt.imshow('{}'.format(i), v)
+    #   if cv2.waitKey(0 if pause else 1) == 27:
+    #     import sys
+    #     sys.exit(0)
+    # else:
+    self.ax = None
+    nImgs = len(self.imgs)
+    fig=self.plt.figure(figsize=(nImgs * 10,10))
+    nCols = nImgs
+    nRows = nImgs // nCols
+    for i, (k, v) in enumerate(self.imgs.items()):
+      fig.add_subplot(1, nImgs, i + 1)
+      if len(v.shape) == 3:
+        self.plt.imshow(cv2.cvtColor(v, cv2.COLOR_BGR2RGB))
+      else:
+        self.plt.imshow(v)
+    self.plt.show()
 
   def save_img(self, imgId='default', path='./cache/debug/'):
     cv2.imwrite(path + '{}.png'.format(imgId), self.imgs[imgId])
